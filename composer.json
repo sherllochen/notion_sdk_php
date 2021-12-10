@@ -1,0 +1,17 @@
+{
+    "name": "sherllo_chen/notion-sdk-php",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "SherlloChen\\NotionSdkPhp\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Sherllo Chen",
+            "email": "sherllochen@gmail.com"
+        }
+    ],
+    "require": {}
+}
