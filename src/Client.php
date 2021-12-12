@@ -3,6 +3,7 @@
 namespace SherlloChen\NotionSdkPhp;
 
 use http\Exception\InvalidArgumentException;
+use phpDocumentor\Reflection\Types\Integer;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use WpOrg\Requests\Requests;
 
@@ -53,7 +54,7 @@ class Client
     {
         $url = "https://api.notion.com/v1/users/${userID}";
         $resp = $this->get($url);
-        return json_decode($resp->body);
+        return json_decode($resp->body, true);
     }
 
     /**
@@ -92,11 +93,11 @@ class Client
     {
         $url = 'https://api.notion.com/v1/users';
         $resp = $this->get($url);
-        return json_decode($resp->body);
+        return json_decode($resp->body, true);
     }
 
     /**
-     * Retrive a database with database id.
+     * Retrieve a database with database id.
      *
      * @return array
      * {
@@ -358,11 +359,89 @@ class Client
      * }
      * @throws \Exception
      */
-    public function retriveDatabase($databaseId): array
+    public function retrieveDatabase($databaseId): array
     {
         $url = "https://api.notion.com/v1/databases/${databaseId}";
         $resp = $this->get($url);
-        return json_decode($resp->body);
+        return json_decode($resp->body, true);
+    }
+
+    /**
+     * Retrieve block children with block id.
+     * With a page id, it will return all block children within the page, it's the first step for getting page contents.
+     * @param string $blockId Page Id or Block id
+     * @param array $pageArguments start_cursor and page_size
+     * @return array
+     * @throws \Exception
+     */
+    public function retrieveBlockChildren(string $blockId, array $pageArguments = []): array
+    {
+        $url = "https://api.notion.com/v1/blocks/${blockId}/children";
+        if ($pageArguments != []) {
+            $url = $url . '?' . http_build_query($pageArguments);
+        }
+        $resp = $this->get($url);
+        return json_decode($resp->body, true);
+    }
+
+    /**
+     * Query database data with database id.
+     *
+     * @param string $databaseId Database ID.
+     * @param array $queryArguments include sort array, filter array, page_size and start_cursor.
+     * @return array List of data.
+     * array:4 [▼
+     * "object" => "list"
+     * "results" => array:1 [▼
+     * 0 => array:10 [▼
+     * "object" => "page"
+     * "id" => "01000398-5d75-4a61-acc6-743d6971c0f1"
+     * "created_time" => "2021-12-09T02:00:00.000Z"
+     * "last_edited_time" => "2021-12-09T07:12:00.000Z"
+     * "cover" => null
+     * "icon" => null
+     * "parent" => array:2 [▶]
+     * "archived" => false
+     * "properties" => array:2 [▶]
+     * "url" => "https://www.notion.so/composer-010003985d754a61acc6743d6971c0f1"
+     * ]
+     * ]
+     * "next_cursor" => "3ddadb8a-08c6-4d9f-ac84-a1e86f5d8b63"
+     * "has_more" => true
+     * ]
+     */
+    public function queryADatabase(string $databaseId, array $queryArguments = []): array
+    {
+        $url = "https://api.notion.com/v1/databases/${databaseId}/query";
+        $data['sort'] = $queryArguments['sort'] ?? array('direction' => 'descending', 'timestamp' => 'last_edited_time');
+        if (isset($queryArguments['filter'])) {
+            $data['filter'] = $queryArguments['filter'];
+        }
+        if (isset($queryArguments['start_cursor'])) {
+            $data['start_cursor'] = $queryArguments['start_cursor'];
+        }
+        $data['page_size'] = $queryArguments['page_size'] ?? 10;
+        $resp = $this->post($url, $data);
+        return json_decode($resp->body, true);
+    }
+
+    /**
+     * Search database with database name.
+     *
+     * @param string $databaseName Full database name.
+     * @return array Database.
+     */
+    public function searchDatabaseByName(string $databaseName): array
+    {
+        $database = [];
+        $databaseList = $this->search($databaseName, 'database')['results'];
+        foreach ($databaseList as $databaseItem) {
+            if ($databaseItem['title'][0]['plain_text'] == $databaseName) {
+                $database = $databaseItem;
+                break;
+            }
+        }
+        return $database;
     }
 
     /**
@@ -391,9 +470,14 @@ class Client
     protected
     function get($url): \WpOrg\Requests\Response
     {
-        $resp = Requests::get($url, $this->constructHeaders());
-        if ($resp->status != '200') {
-            throw new \Exception($resp->body);
+        $resp = null;
+        try {
+            $resp = Requests::get($url, $this->constructHeaders());
+            if ($resp->status_code != '200') {
+                throw new \Exception($resp->body);
+            }
+        } catch (\WpOrg\Requests\Exception $e) {
+            throw new \Exception('Encounter error when requesting Notion api: ' . $e->getMessage());
         }
         return $resp;
     }
@@ -404,9 +488,14 @@ class Client
     protected
     function post($url, $data): \WpOrg\Requests\Response
     {
-        $resp = Requests::post($url, $this->constructHeaders(), json_encode($data));
-        if ($resp->status_code != '200') {
-            throw new \Exception($resp->body);
+        $resp = null;
+        try {
+            $resp = Requests::post($url, $this->constructHeaders(), json_encode($data));
+            if ($resp->status_code != '200') {
+                throw new \Exception($resp->body);
+            }
+        } catch (\WpOrg\Requests\Exception $e) {
+            throw new \Exception('Encounter error when requesting Notion api: ' . $e->getMessage());
         }
         return $resp;
     }
