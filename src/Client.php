@@ -361,9 +361,7 @@ class Client
      */
     public function retrieveDatabase($databaseId): array
     {
-        $url = "https://api.notion.com/v1/databases/${databaseId}";
-        $resp = $this->get($url);
-        return json_decode($resp->body, true);
+        return $this->getModelInfoWithId('databases', $databaseId);
     }
 
     /**
@@ -444,8 +442,13 @@ class Client
         return $database;
     }
 
+    public function retrievePage($pageId): array
+    {
+        return $this->getModelInfoWithId('pages', $pageId);
+    }
+
     /**
-     * Retrieve a user with user id.
+     * Search for databases.
      *
      * @param string $query Query string.
      * @param string|null $objectType Type of object, can only be null, page or database.
@@ -498,6 +501,23 @@ class Client
             throw new \Exception('Encounter error when requesting Notion api: ' . $e->getMessage());
         }
         return $resp;
+    }
+
+
+    /**
+     * Retrieve information of model with id.
+     *
+     * @param string $modelName Plural form of model, such as pages, databases.
+     * @param string $modelId pageId,databaseId
+     * @return array
+     * @throws \Exception
+     */
+    protected
+    function getModelInfoWithId(string $modelName, string $modelId): array
+    {
+        $url = "https://api.notion.com/v1/${modelName}/${modelId}";
+        $resp = $this->get($url);
+        return json_decode($resp->body, true);
     }
 
     /**
