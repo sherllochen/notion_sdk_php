@@ -6,6 +6,7 @@ use http\Exception\InvalidArgumentException;
 use phpDocumentor\Reflection\Types\Integer;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use WpOrg\Requests\Requests;
+use SherlloChen\NotionSdkPhp\Utils;
 
 class Client
 {
@@ -442,10 +443,123 @@ class Client
         return $database;
     }
 
+
+//    Page related methods
+
+    /**
+     * Retrieve a page with page id.
+     *
+     * @param $pageId
+     * @return array of page
+     *{
+     *"object": "page",
+     *"id": "a2442b8e-d1f4-4784-86f3-6b7840401422",
+     *"created_time": "2020-02-14T07:08:00.000Z",
+     *"last_edited_time": "2021-12-19T06:42:00.000Z",
+     *"cover": {
+     *"type": "external",
+     *"external": {
+     *"url": "https://images.unsplash.com/photo-1627483262769-04d0a1401487?ixlib=rb-1.2.1&q=85&fm=jpg&crop=entropy&cs=srgb"
+     *}
+     *},
+     *"icon": null,
+     *"parent": {
+     *"type": "database_id",
+     *"database_id": "2bf03ec4-e12d-4faf-96e5-99407f889357"
+     *},
+     *"archived": false,
+     *"properties": {
+     *"Last Edited": {
+     *"id": "(WIG",
+     *"type": "last_edited_time",
+     *"last_edited_time": "2021-12-19T06:42:00.000Z"
+     *},
+     *"Property": {
+     *"id": "1^Kq",
+     *"type": "rich_text",
+     *"rich_text": []
+     *},
+     *"Category": {
+     *"id": "4k#/",
+     *"type": "select",
+     *"select": {
+     *"id": "510095c1-d11d-4879-a138-e3f6fec58d62",
+     *"name": "tech",
+     *"color": "pink"
+     *}
+     *},
+     *"Status": {
+     *"id": "EA8B",
+     *"type": "select",
+     *"select": {
+     *"id": "142beb34-989b-4412-bc5f-411d9a142c93",
+     *"name": "done",
+     *"color": "purple"
+     *}
+     *},
+     *"Published": {
+     *"id": "gPb;",
+     *"type": "checkbox",
+     *"checkbox": false
+     *},
+     *"Name": {
+     *"id": "title",
+     *"type": "title",
+     *"title": [
+     *{
+     *"type": "text",
+     *"text": {
+     *"content": "个人简历（as 开发）",
+     *"link": null
+     *},
+     *"annotations": {
+     *"bold": false,
+     *"italic": false,
+     *"strikethrough": false,
+     *"underline": false,
+     *"code": false,
+     *"color": "default"
+     *},
+     *"plain_text": "个人简历（as 开发）",
+     *"href": null
+     *}
+     *]
+     *},
+     *"Created By": {
+     *"id": "prop_1",
+     *"type": "created_by",
+     *"created_by": {
+     *"object": "user",
+     *"id": "117e2f2a-2abc-4b5b-b6f5-a83ec26ddc68",
+     *"name": "Sherllo Chen",
+     *"avatar_url": "https://lh4.googleusercontent.com/-lIBhIYWvzsM/AAAAAAAAAAI/AAAAAAAAABY/iAycQ8o9VFk/photo.jpg?sz=50",
+     *"type": "person",
+     *"person": {
+     *"email": "jjchen@xmu.edu.cn"
+     *}
+     *}
+     *},
+     *"Tags": {
+     *"id": "prop_2",
+     *"type": "multi_select",
+     *"multi_select": [
+     *{
+     *"id": "075a29ef-ed38-4102-b259-47b4c103cb57",
+     *"name": "Important",
+     *"color": "red"
+     *}
+     *]
+     *}
+     *},
+     *"url": "https://www.notion.so/as-a2442b8ed1f4478486f36b7840401422"
+     *}
+     * @throws \Exception
+     */
     public function retrievePage($pageId): array
     {
         return $this->getModelInfoWithId('pages', $pageId);
     }
+//    End Page related
 
     /**
      * Search for databases.
