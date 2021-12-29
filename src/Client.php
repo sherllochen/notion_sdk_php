@@ -388,6 +388,14 @@ class Client
      *
      * @param string $databaseId Database ID.
      * @param array $queryArguments include sort array, filter array, page_size and start_cursor.
+     * Reference for filter object: https://developers.notion.com/reference/post-database-query#post-database-query-filter
+     * example
+     * {
+     *   "property": "Published",
+     *   "checkbox": {
+     *       "equals": true
+     *    }
+     * }
      * @return array List of data.
      * array:4 [▼
      * "object" => "list"
